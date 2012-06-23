@@ -52,26 +52,34 @@
   
   UserService userService = UserServiceFactory.getUserService();
   User user = userService.getCurrentUser();
-  System.out.println("Checking user: " + user.toString());
-  if (selections != null) {
-    System.out.println("selections: " + selections.toString());
+  boolean debug = false;
+  if (debug) {
+    System.out.println("Checking user: " + user.toString());
+    if (selections != null) {
+      System.out.println("selections: " + selections.toString());
+    }
+    System.out.println("categories: " + categories.toString());
+    System.out.println("individuals: " + individuals.toString());
+    System.out.println("currentCategory: " + currentCategory.toString());
+    System.out.println("currentIndividual: " + currentIndividual.toString());
   }
-  System.out.println("categories: " + categories.toString());
-  System.out.println("individuals: " + individuals.toString());
-  System.out.println("currentCategory: " + currentCategory.toString());
-  System.out.println("currentIndividual: " + currentIndividual.toString());
   if (user != null) {
 %>
 <p>Ready to <i>browse</i>, <%= user.getNickname() %>? (You can
 <a href="<%= userService.createLogoutURL(request.getRequestURI()) %>">sign out</a>.)</p>
+
+<%
+  if (debug) {
+%>
 <p>st is <%= st.toString() %> !</p>
 <p>selections is <%= selections != null ? selections.toString(): "null" %> !</p>
 <p>categories is <%= categories.toString() %> !</p>
 <p>individuals is <%= individuals.toString() %> !</p>
 <p>currentCategory is <%= currentCategory.toString() %> !</p>
 <p>currentIndividual is <%= currentIndividual.toString() %> !</p>
-
-
+<%
+    }
+%>
 
 <%
     } else {
@@ -92,7 +100,7 @@ Browse
   <% for (String category: Storage.filterDefault(categories)) { %>
       <option value=<%=category%><%=JspHelper.selectedHtml(category, currentCategory)%>><%=category%></option>
   <% } %>
-</select><br>
+</select>
 Show
 <select id="pzp_individual_id">
   <option value="_new_">New Individual...</option>

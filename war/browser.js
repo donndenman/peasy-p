@@ -50,6 +50,7 @@ pzp.Browser.initialize = function() {
 	instance.setupUx_();
 };
 
+
 pzp.Browser.prototype.attachHandlers_ = function() {
 	// Attach handlers to the workspace.
   var self = this;
@@ -70,9 +71,11 @@ pzp.Browser.prototype.attachHandlers_ = function() {
   }); 
 };
 
+
 pzp.Browser.prototype.setupUx_ = function() {
   this.updateWorkspace_();
 };
+
 
 pzp.Browser.prototype.updateWorkspace_ = function() {
   var self = this;
@@ -86,6 +89,12 @@ pzp.Browser.prototype.saveWorkspace_ = function() {
   this.storage_.update(this.selectedIndividual_, this.selectedCategory_, this.workspace_.value);
 };
 
+
+/**
+ * Handles changes to the workspace textarea.
+ * Called when the user makes a change to the textarea known
+ * as the workspace.
+ */
 pzp.Browser.prototype.changedWorkspaceHandler_ = function(event) {
   // Set a timer to save changes after a pause in activity.
   var delayMs = 1000;
@@ -102,12 +111,23 @@ pzp.Browser.prototype.changedWorkspaceHandler_ = function(event) {
   }, delayMs);
 };
 
+
+/**
+ * Handles bulk changes to the workspace textarea.
+ * Called after a short delay after the workspace changed (maybe multiple
+ * times).
+ */
 pzp.Browser.prototype.delayedChangedWorkspaceHandler_ = function(individual, category, workspace) {
   // Send save request
-  console.log('saving ' + individual + ' ' + category);
+  console.log('Saving ' + individual + ' ' + category);
 	this.storage_.update(individual, category, workspace);
 };
 
+
+/**
+ * Handles a selection of a new individual.
+ * Called when the user selects an item in the "individual" menu.
+ */
 pzp.Browser.prototype.changedIndividualMenuHandler_ = function(event) {
   this.saveWorkspace_();
   
@@ -141,6 +161,11 @@ pzp.Browser.prototype.changedIndividualMenuHandler_ = function(event) {
   }
 };
 
+
+/**
+ * Handles changes to the category.
+ * Called when the user selects a category from the cateogry menu.
+ */
 pzp.Browser.prototype.changedCategoryMenuHandler_ = function(event) {
   this.saveWorkspace_();
 
@@ -167,13 +192,21 @@ pzp.Browser.prototype.changedCategoryMenuHandler_ = function(event) {
   });
 };
 
+
+/**
+ * Updates the "individuals" menu.
+ */
 pzp.Browser.prototype.updateIndividualsHandler_ = function(individuals, selection) {
   // Stick with the same individual if we can otherwise switch to '-'.
   var menu = this.individual_;
   while (menu.length > 2) {
     menu.remove(2);
   }
-  var individual;
+  var newItemEntry = menu[0];  // The "New..." item.
+  console.log('Updating to New ' + this.category_.value);
+  console.log('individual reads: ' + newItemEntry.text);
+  newItemEntry.text = 'New ' + this.category_.value + ' ...';
+  console.log('individual now reads: ' + newItemEntry.text);
   var selectedIndex = 1;
   var index = 1;
   for (var i = 0; i < individuals.length; ++i) {
@@ -192,7 +225,7 @@ pzp.Browser.prototype.updateIndividualsHandler_ = function(individuals, selectio
   menu.selectedIndex = selectedIndex;
   individual = menu[selectedIndex].value;
   this.selectedIndividual_ = individual;
-  console.log("saving selection with individual " + individual);
+  console.log("Saving selection with individual " + individual);
     
   // Save the new selections
   this.storage_.update('_selections_', '-', JSON.stringify({
@@ -204,6 +237,9 @@ pzp.Browser.prototype.updateIndividualsHandler_ = function(individuals, selectio
   this.updateWorkspace_();
 };
 
+/**
+ * Creates a new item if required.
+ */
 pzp.Browser.prototype.createNewIfRequested_ = function(name) {
   var result = name;
   if (name == '_new_') {
@@ -212,6 +248,10 @@ pzp.Browser.prototype.createNewIfRequested_ = function(name) {
   return result;
 };
 
+
+/**
+ * Adds a menu item.
+ */
 pzp.Browser.prototype.addMenuItem_ = function(menu, name) {
   var option = document.createElement('option');
   option.text = name;
