@@ -276,6 +276,26 @@ pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
   console.log('workspace: ' + this.workspace_.value);
   this.output_.value = 'output';
 
+  // TODO(donnd): find a cleaner way to install these two pieces of functionality?
+  // Make a new object that inherits members from an existing object.
+
+  if (typeof Object.create !== 'function') {
+      Object.create = function (o) {
+          function F() {}
+          F.prototype = o;
+          return new F();
+      };
+  }
+
+  // Transform a token object into an exception object and throw it.
+
+  Object.prototype.error = function (message, t) {
+      t = t || this;
+      t.name = "SyntaxError";
+      t.message = message;
+      throw t;
+  };
+
   var parse = make_parse();
 
   function go(source) {
