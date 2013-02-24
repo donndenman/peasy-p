@@ -22,14 +22,16 @@
  * @constructor 
  */
 pzp.Browser = function() {
-	this.category_ = document.getElementById('pzp_category_id');
-	this.individual_ = document.getElementById('pzp_individual_id');
+  this.category_ = document.getElementById('pzp_category_id');
+  this.individual_ = document.getElementById('pzp_individual_id');
   this.workspace_ = document.getElementById('pzp_workspace_id');
+  this.parse_ = document.getElementById('pzp_parse_id');
+  this.output_ = document.getElementById('pzp_output_id');
   this.selectedCategory_ = this.category_.value;
   this.selectedIndividual_ = this.individual_.value;
-	this.workspaceText_ = this.workspace_.value;
-	this.storage_ = new pzp.Storage();
-	this.lastChangeTime_ = new Date().getTime();
+  this.workspaceText_ = this.workspace_.value;
+  this.storage_ = new pzp.Storage();
+  this.lastChangeTime_ = new Date().getTime();
 };
 
 pzp.Browser.instance_ = null;
@@ -57,7 +59,7 @@ pzp.Browser.prototype.attachHandlers_ = function() {
   var workspaceMethodWrapper = function(event) {
     self.changedWorkspaceHandler_(event);
   };
-	this.workspace_.addEventListener('keyup', workspaceMethodWrapper);
+  this.workspace_.addEventListener('keyup', workspaceMethodWrapper);
   this.workspace_.addEventListener('change', workspaceMethodWrapper);
   this.workspace_.addEventListener('blur', workspaceMethodWrapper);
   
@@ -68,7 +70,12 @@ pzp.Browser.prototype.attachHandlers_ = function() {
   
   this.individual_.addEventListener('change', function(event) {
     self.changedIndividualMenuHandler_(event);
-  }); 
+  });
+
+  // Add a handler to the parse button
+  this.parse_.addEventListener('click', function(event) {
+    self.parseWorkspaceHandler_(event);
+  });
 };
 
 
@@ -261,3 +268,31 @@ pzp.Browser.prototype.addMenuItem_ = function(menu, name) {
 };
 
 
+/**
+ * Parses the workspace and puts the result into the output.
+ */
+pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
+  console.log('parseWorkspaceHandler_');
+  console.log('workspace: ' + this.workspace_.value);
+  this.output_.value = 'output';
+
+  var parse = make_parse();
+
+  function go(source) {
+      var string, tree;
+      try {
+          tree = parse(source);
+          string = JSON.stringify(tree, ['key', 'name', 'message',
+              'value', 'arity', 'first', 'second', 'third', 'fourth'], 4);
+      } catch (e) {
+          string = JSON.stringify(e, ['name', 'message', 'from', 'to', 'key',
+                  'value', 'arity', 'first', 'second', 'third', 'fourth'], 4);
+      }
+      var result = string
+          .replace(/&/g, '&amp;')
+          .replace(/[<]/g, '&lt;');
+      return result;
+  }
+
+  this.output_.value = go(this.workspace_.value);
+};

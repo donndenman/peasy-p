@@ -17,7 +17,7 @@
  * @author Donn Denman
  */
 
-// Set up my namespace.
+// Set up the pzp namespace.
 var pzp;
 if (!pzp) {
   pzp = {};

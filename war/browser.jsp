@@ -18,6 +18,8 @@
     <script src="pzp.js"></script>
     <script src="storage.js"></script>
     <script src="browser.js"></script>
+    <script src="language/crockford/tokens.js"></script>
+    <script src="language/crockford/parse.js"></script>
   </head>
   <body onload="pzp.Browser.initialize();">
 
@@ -112,5 +114,9 @@ Show
  </select>
  <br>
  <textarea rows=20 cols=100 id="pzp_workspace_id"></textarea>
+ <br>
+ <input type="button" id="pzp_parse_id" value="Parse">
+ <br>
+ <textarea rows=20 cols=100 id="pzp_output_id"></textarea>
   </body>
 </html>
