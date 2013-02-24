@@ -277,6 +277,7 @@ pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
   this.output_.value = 'output';
 
   // TODO(donnd): find a cleaner way to install these two pieces of functionality?
+
   // Make a new object that inherits members from an existing object.
 
   if (typeof Object.create !== 'function') {
