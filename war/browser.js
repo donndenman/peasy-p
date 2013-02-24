@@ -272,14 +272,9 @@ pzp.Browser.prototype.addMenuItem_ = function(menu, name) {
  * Parses the workspace and puts the result into the output.
  */
 pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
-  console.log('parseWorkspaceHandler_');
-  console.log('workspace: ' + this.workspace_.value);
-  this.output_.value = 'output';
-
   // TODO(donnd): find a cleaner way to install these two pieces of functionality?
 
   // Make a new object that inherits members from an existing object.
-
   if (typeof Object.create !== 'function') {
       Object.create = function (o) {
           function F() {}
@@ -289,7 +284,6 @@ pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
   }
 
   // Transform a token object into an exception object and throw it.
-
   Object.prototype.error = function (message, t) {
       t = t || this;
       t.name = "SyntaxError";
