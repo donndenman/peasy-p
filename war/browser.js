@@ -50,6 +50,7 @@ pzp.Browser.initialize = function() {
 	var instance = pzp.Browser.getInstance();
 	instance.attachHandlers_();
 	instance.setupUx_();
+	instance.setupParser_();
 };
 
 
@@ -76,6 +77,11 @@ pzp.Browser.prototype.attachHandlers_ = function() {
   this.parse_.addEventListener('click', function(event) {
     self.parseWorkspaceHandler_(event);
   });
+};
+
+
+pzp.Browser.prototype.setupParser_ = function() {
+  this.storage_.readNarcissusFiles();
 };
 
 
@@ -268,46 +274,57 @@ pzp.Browser.prototype.addMenuItem_ = function(menu, name) {
 };
 
 
+// TODO(donnd): find a better way to define read();
+function read(path) {
+  return pzp.Browser.getInstance().storage_.readNarcissusFile(path);
+}
+
+
+pzp.Browser.prototype.initNarcissus_ = function(global) {
+  // TODO(donnd): use shell.js instead?  This code was copied from there.
+  if (!this.parserInitied_) {
+    var moduleNames = [
+        "options",
+        "definitions",
+        "lexer",
+        "parser",
+        "decompiler",
+        "resolver",
+        "desugaring",
+        "bytecode",
+        "interpreter"
+    ];
+
+    var moduleSources = moduleNames.map(function(moduleName) {
+        return read('../lib/' + moduleName + '.js');
+    });
+
+    var evalWithLocation = global.evalWithLocation || function evalWithLocation(src) {
+        return (0,eval)(src);
+    };
+
+    // defines the init function in this local scope
+    var init = evalWithLocation(read('./init.js'), "init.js", 1);
+
+    global.Narcissus = init(moduleNames, moduleSources, evalWithLocation, global);
+    this.parserInited_ = true;
+  }
+};
+
+
 /**
  * Parses the workspace and puts the result into the output.
  */
 pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
-  // TODO(donnd): find a cleaner way to install these two pieces of functionality?
+//  this.output_.value = Narcissus.parser.Parse(this.workspace_.value);
 
-  // Make a new object that inherits members from an existing object.
-  if (typeof Object.create !== 'function') {
-      Object.create = function (o) {
-          function F() {}
-          F.prototype = o;
-          return new F();
-      };
-  }
+//  var exports = exports || {};
+//    exports.definitions = require("./lib/definitions");
+//    exports.lexer = require("./lib/lexer");
+//    exports.parser = require("./lib/parser");
+//    exports.decompiler = require("./lib/decompiler");
 
-  // Transform a token object into an exception object and throw it.
-  Object.prototype.error = function (message, t) {
-      t = t || this;
-      t.name = "SyntaxError";
-      t.message = message;
-      throw t;
-  };
-
-  var parse = make_parse();
-
-  function go(source) {
-      var string, tree;
-      try {
-          tree = parse(source);
-          string = JSON.stringify(tree, ['key', 'name', 'message',
-              'value', 'arity', 'first', 'second', 'third', 'fourth'], 4);
-      } catch (e) {
-          string = JSON.stringify(e, ['name', 'message', 'from', 'to', 'key',
-                  'value', 'arity', 'first', 'second', 'third', 'fourth'], 4);
-      }
-      var result = string
-          .replace(/&/g, '&amp;')
-          .replace(/[<]/g, '&lt;');
-      return result;
-  }
-
-  this.output_.value = go(this.workspace_.value);
+    this.initNarcissus_(this);
+    console.log('Narcissus inited! ');
+    this.output_.value = this.Narcissus.parser.parse(this.workspace_.values);
 };

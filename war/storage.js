@@ -99,3 +99,56 @@ pzp.Storage.prototype.sendRequest_ = function(request, handler, opt_requestType)
   xhr.send();
 };
 
+pzp.Storage.prototype.readNarcissusFiles = function() {
+    var moduleNames = [
+        "options",
+        "definitions",
+        "lexer",
+        "parser",
+        "decompiler",
+        "resolver",
+        "desugaring",
+        "bytecode",
+        "interpreter"
+    ];
+    var prefix = 'language/narcissus/lib/';
+    var postfix = '.js';
+    this.narcissusModuleSources_ = {};
+    var self = this;
+    for (var i = 0, module; module = moduleNames[i]; i++) {
+      (function(module) {
+        var moduleName = module + postfix;
+        var responseHandler = function(response) {
+            console.log('read in ' + moduleName);
+            self.narcissusModuleSources_[moduleName] = response;
+        };
+        self.sendRequest_(prefix + module + postfix, responseHandler);
+      })(module);
+    }
+    self.sendRequest_('language/narcissus/spidermonkey/init.js', function(response) {
+      console.log('read in init.js');
+      self.narcissusModuleSources_['init.js'] = response;
+    });
+};
+
+pzp.Storage.prototype.readNarcissusFile = function(localPath) {
+    var result = null;
+    var prefix = '../lib/';
+    var fileStartIndex = localPath.indexOf(prefix);
+    if (fileStartIndex == 0) {
+      var pathEnding = localPath.substring(prefix.length);
+      result = this.narcissusModuleSources_[pathEnding];
+    } else {
+      prefix = './';
+      fileStartIndex = localPath.indexOf(prefix);
+      if (fileStartIndex == 0) {
+        pathEnding = localPath.substring(prefix.length);
+        result = this.narcissusModuleSources_[pathEnding];
+      } else {
+        console.log('WARNING: readNarcissusFile does not yet know ' + localPath);
+      }
+    }
+    console.log('read(' + localPath + ') returning ' +
+        (result ? result.length + 'bytes' : null));
+    return result;
+};

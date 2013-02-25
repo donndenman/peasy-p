@@ -18,8 +18,6 @@
     <script src="pzp.js"></script>
     <script src="storage.js"></script>
     <script src="browser.js"></script>
-    <script src="language/crockford/tokens.js"></script>
-    <script src="language/crockford/parse.js"></script>
   </head>
   <body onload="pzp.Browser.initialize();">
 
