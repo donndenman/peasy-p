@@ -113,7 +113,7 @@ Show
  <br>
  <textarea rows=20 cols=100 id="pzp_workspace_id"></textarea>
  <br>
- <input type="button" id="pzp_parse_id" value="Parse">
+ <input type="button" id="pzp_go_id" value="Go">
  <br>
  <textarea rows=20 cols=100 id="pzp_output_id"></textarea>
   </body>

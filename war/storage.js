@@ -99,6 +99,7 @@ pzp.Storage.prototype.sendRequest_ = function(request, handler, opt_requestType)
   xhr.send();
 };
 
+// TODO(donnd): move this section to a different servlet?
 pzp.Storage.prototype.readNarcissusFiles = function() {
     var moduleNames = [
         "options",

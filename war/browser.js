@@ -25,7 +25,7 @@ pzp.Browser = function() {
   this.category_ = document.getElementById('pzp_category_id');
   this.individual_ = document.getElementById('pzp_individual_id');
   this.workspace_ = document.getElementById('pzp_workspace_id');
-  this.parse_ = document.getElementById('pzp_parse_id');
+  this.go_ = document.getElementById('pzp_go_id');
   this.output_ = document.getElementById('pzp_output_id');
   this.selectedCategory_ = this.category_.value;
   this.selectedIndividual_ = this.individual_.value;
@@ -73,8 +73,8 @@ pzp.Browser.prototype.attachHandlers_ = function() {
     self.changedIndividualMenuHandler_(event);
   });
 
-  // Add a handler to the parse button
-  this.parse_.addEventListener('click', function(event) {
+  // Add a handler to the go button
+  this.go_.addEventListener('click', function(event) {
     self.parseWorkspaceHandler_(event);
   });
 };
@@ -326,5 +326,5 @@ pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
 
     this.initNarcissus_(this);
     console.log('Narcissus inited! ');
-    this.output_.value = this.Narcissus.parser.parse(this.workspace_.values);
+    this.output_.value = this.Narcissus.interpreter.evaluate(this.workspace_.value);
 };
