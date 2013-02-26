@@ -3,7 +3,6 @@
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="java.io.StringBufferInputStream" %>
-<%@ page import="org.antlr.runtime.*" %>
 <%@ page import="com.google.pzp.Storage" %>
 <%@ page import="com.google.pzp.JspHelper" %>
 <%@ page import="java.util.List" %>
@@ -47,9 +46,7 @@
   
   List<String> individuals = storage.individuals(currentCategory);
   System.out.println("individuals: " + individuals.toString());
-  
-  ANTLRInputStream st = new ANTLRInputStream(new StringBufferInputStream("ID;"));
-  
+
   UserService userService = UserServiceFactory.getUserService();
   User user = userService.getCurrentUser();
   boolean debug = false;
@@ -71,7 +68,6 @@
 <%
   if (debug) {
 %>
-<p>st is <%= st.toString() %> !</p>
 <p>selections is <%= selections != null ? selections.toString(): "null" %> !</p>
 <p>categories is <%= categories.toString() %> !</p>
 <p>individuals is <%= individuals.toString() %> !</p>
