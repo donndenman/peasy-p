@@ -44,6 +44,7 @@
  * Static variable and module resolution for Harmony.
  */
 
+define(function(require, exports, module) {
 const definitions = require('./definitions');
 const parser = require('./parser');
 
@@ -711,3 +712,4 @@ function resolveStatement(node, env) {
 exports.Def = Def;
 exports.StaticEnv = StaticEnv;
 exports.resolve = resolve;
+});

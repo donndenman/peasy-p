@@ -14,6 +14,7 @@
 <html>
   <head>
     <title>Peasy-p Browser</title>
+    <script src="utils/requirejs.2.1.4.js"></script>
     <script src="pzp.js"></script>
     <script src="storage.js"></script>
     <script src="browser.js"></script>

@@ -54,6 +54,7 @@
  * an extra level of prototype-based delegation.
  */
 
+define(function(require, exports, module) {
 var parser = require('./parser');
 var options = require('./options');
 var definitions = require('./definitions');
@@ -1429,3 +1430,4 @@ exports.evaluate = evaluate;
 exports.getValueHook = null;
 exports.repl = repl;
 exports.test = test;
+});

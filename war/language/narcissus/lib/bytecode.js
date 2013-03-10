@@ -43,6 +43,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+define(function(require, exports, module) {
 const definitions = require('./definitions');
 
 // Set constants in the local scope.
@@ -1122,3 +1123,4 @@ exports.compile = compile;
 exports.Generator = Generator;
 exports.GeneratorReturn = GeneratorReturn;
 exports.StopIteration = StopIteration;
+});

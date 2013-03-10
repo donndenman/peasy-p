@@ -50,6 +50,7 @@
  * done by SpiderMonkey.
  */
 
+define(function(require, exports, module) {
 var tokens = [
     // End of source.
     "END",
@@ -690,3 +691,4 @@ exports.makePassthruHandler = makePassthruHandler;
 exports.Dict = Dict;
 exports.WeakMap = _WeakMap;
 exports.Stack = Stack;
+});

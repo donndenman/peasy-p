@@ -48,6 +48,7 @@
  * Lexical scanner.
  */
 
+define(function(require, exports, module) {
 var definitions = require('./definitions');
 
 // Set constants in the local scope.
@@ -590,3 +591,4 @@ Tokenizer.prototype = {
 
 exports.isIdentifier = isIdentifier;
 exports.Tokenizer = Tokenizer;
+});

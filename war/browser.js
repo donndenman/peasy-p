@@ -81,7 +81,7 @@ pzp.Browser.prototype.attachHandlers_ = function() {
 
 
 pzp.Browser.prototype.setupParser_ = function() {
-  this.storage_.readNarcissusFiles();
+  this.initRequireJs_();
 };
 
 
@@ -273,41 +273,25 @@ pzp.Browser.prototype.addMenuItem_ = function(menu, name) {
   menu.selectedIndex = 2;
 };
 
+/*
+ * RequireJS and Narcissus section.
+ */
 
-// TODO(donnd): find a better way to define read();
-function read(path) {
-  return pzp.Browser.getInstance().storage_.readNarcissusFile(path);
-}
-
-
-pzp.Browser.prototype.initNarcissus_ = function(global) {
-  // TODO(donnd): use shell.js instead?  This code was copied from there.
+pzp.Browser.prototype.initRequireJs_ = function() {
   if (!this.parserInitied_) {
-    var moduleNames = [
-        "options",
-        "definitions",
-        "lexer",
-        "parser",
-        "decompiler",
-        "resolver",
-        "desugaring",
-        "bytecode",
-        "interpreter"
-    ];
-
-    var moduleSources = moduleNames.map(function(moduleName) {
-        return read('../lib/' + moduleName + '.js');
+    requirejs.config({
+        //By default load any module IDs from language/narcissus/lib
+        baseUrl: 'language/narcissus/lib',
+        //except, if the module ID starts with "lib", (or global),
+        //load it from the lib directory. paths
+        //config is relative to the baseUrl, and
+        //never includes a ".js" extension since
+        //the paths config could be for a directory.
+        paths: {
+            lib: '../../../lib',
+            global: '../../../utils/global'
+        }
     });
-
-    var evalWithLocation = global.evalWithLocation || function evalWithLocation(src) {
-        return (0,eval)(src);
-    };
-
-    // defines the init function in this local scope
-    var init = evalWithLocation(read('./init.js'), "init.js", 1);
-
-    global.Narcissus = init(moduleNames, moduleSources, evalWithLocation, global);
-    this.parserInited_ = true;
   }
 };
 
@@ -316,15 +300,8 @@ pzp.Browser.prototype.initNarcissus_ = function(global) {
  * Parses the workspace and puts the result into the output.
  */
 pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
-//  this.output_.value = Narcissus.parser.Parse(this.workspace_.value);
-
-//  var exports = exports || {};
-//    exports.definitions = require("./lib/definitions");
-//    exports.lexer = require("./lib/lexer");
-//    exports.parser = require("./lib/parser");
-//    exports.decompiler = require("./lib/decompiler");
-
-    this.initNarcissus_(this);
-    console.log('Narcissus inited! ');
-    this.output_.value = this.Narcissus.interpreter.evaluate(this.workspace_.value);
+    var self = this;
+    requirejs(['interpreter'], function(interpreter) {
+      self.output_.value = interpreter.evaluate(self.workspace_.value);
+    });
 };

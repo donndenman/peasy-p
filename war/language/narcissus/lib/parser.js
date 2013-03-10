@@ -49,6 +49,7 @@
  * Parser.
  */
 
+define(function(require, exports, module) {
 var lexer = require('./lexer');
 var definitions = require('./definitions');
 var options = require('./options');
@@ -2064,3 +2065,4 @@ exports.Tokenizer = Tokenizer;
 exports.Parser = Parser;
 exports.Module = Module;
 exports.Export = Export;
+});

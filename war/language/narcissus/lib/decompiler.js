@@ -44,6 +44,7 @@
  * Decompiler and pretty-printer.
  */
 
+define(function(require, exports, module) {
 const lexer = require('./lexer');
 const parser = require('./parser');
 const definitions = require('./definitions');
@@ -548,3 +549,4 @@ function pp(n, d, inLetHead) {
 }
 
 exports.pp = pp;
+});

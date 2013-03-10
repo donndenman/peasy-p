@@ -79,6 +79,7 @@
  *     (( [ P1, ..., Pn ] ))         = (( P1 )), ..., (( Pn ))
  */
 
+define(function(require, exports, module) {
 var definitions = require('./definitions');
 var parser = require('./parser');
 
@@ -1007,3 +1008,4 @@ function desugar(node) {
 }
 
 exports.desugar = desugar;
+});

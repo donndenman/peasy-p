@@ -41,6 +41,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+define(function(require, exports, module) {
 // Global variables to hide from the interpreter
 exports.hiddenHostGlobals = { Narcissus: true };
 
@@ -55,3 +56,4 @@ exports.mozillaMode = false;
 
 // Allow experimental paren-free mode?
 exports.parenFreeMode = false;
+});

@@ -43,6 +43,7 @@
  * Browser-specific tweaks needed for Narcissus to execute properly
  */
 
+define(function(require, exports, module) {
 var interpreter = require('./interpreter');
 var globalBase = interpreter.globalBase;
 
@@ -64,3 +65,4 @@ globalBase.setInterval = function(code, delay) {
 
 // Hack to avoid problems with the Image constructor in Narcissus.
 globalBase.Image = function() {};
+});
