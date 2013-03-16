@@ -302,6 +302,10 @@ pzp.Browser.prototype.initRequireJs_ = function() {
 pzp.Browser.prototype.parseWorkspaceHandler_ = function(event) {
     var self = this;
     requirejs(['interpreter'], function(interpreter) {
-      self.output_.value = interpreter.evaluate(self.workspace_.value);
+      try {
+        self.output_.value = interpreter.evaluate(self.workspace_.value);
+      } catch (e) {
+        self.output_.value = e;
+      }
     });
 };
