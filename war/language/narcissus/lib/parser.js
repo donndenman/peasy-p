@@ -2058,6 +2058,7 @@ exports.parse = parse;
 exports.parseStdin = parseStdin;
 exports.parseFunction = parseFunction;
 exports.Node = Node;
+exports.tokenString = tokenString;
 exports.DECLARED_FORM = DECLARED_FORM;
 exports.EXPRESSED_FORM = EXPRESSED_FORM;
 exports.STATEMENT_FORM = STATEMENT_FORM;

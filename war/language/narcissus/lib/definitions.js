@@ -274,6 +274,7 @@ function defineMemoGetter(obj, prop, fn, dontDelete, dontEnum) {
     });
 }
 
+// Define the given property on the given object.
 function defineProperty(obj, prop, val, dontDelete, readOnly, dontEnum) {
     Object.defineProperty(obj, prop,
                           { value: val, writable: !readOnly, configurable: !dontDelete,

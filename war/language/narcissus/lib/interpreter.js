@@ -63,6 +63,7 @@ var hostGlobal = require('./global');
 var desugaring = require('./desugaring');
 var bytecode = require('./bytecode');
 var decompiler = require('./decompiler');
+var proxy = require('./proxy');
 
 // Set constants in the local scope.
 eval(definitions.consts);
@@ -70,16 +71,11 @@ eval(definitions.consts);
 const WeakMap = definitions.WeakMap;
 const StaticEnv = resolver.StaticEnv;
 const Def = resolver.Def;
+const Proxy = proxy.Proxy;
 
 const applyNew = definitions.applyNew;
 
 const GLOBAL_CODE = 0, EVAL_CODE = 1, FUNCTION_CODE = 2, MODULE_CODE = 3;
-
-// TODO(donnd): fix this proxy object!
-const Proxy = {
-    create: function(obj) { console.log('Proxy.create()'); return obj; },
-    createFunction: function(handler, f1, f2) { console.log('Proxy.createFunction()'); return handler; }
-};
 
 // An unexported type of exception object used for internal signalling.
 // User exceptions are self-representing; whenever we use exceptions to
@@ -94,11 +90,14 @@ const RETURN_SIGNAL = new InternalSignal,
       CONTINUE_SIGNAL = new InternalSignal,
       EXIT_SIGNAL = new InternalSignal;
 
+// Constructs an Execution context with the given type and strictness.
+// Other members include: thisObject, thisModule, functionInstance, scope
 function ExecutionContext(type, strict) {
     this.type = type;
     this.strict = !!strict;
 }
 
+// Determines if the given exception is due to a stack overflow.
 function isStackOverflow(e) {
     var re = /InternalError: (script stack space quota is exhausted|too much recursion)/;
     return re.test(e.toString());
@@ -109,7 +108,11 @@ var globalBase = {
     // Value properties.
     NaN: NaN, Infinity: Infinity, undefined: undefined,
 
+    window: window,
+    console: console,
+
     // Function properties.
+    // eval: parses and executes the given string.
     eval: function eval(s) {
         if (typeof s !== "string")
             return s;
@@ -179,6 +182,7 @@ var globalBase = {
 
         evaluate(snarf(s), s, 1)
     },
+    // disassemble?
     dis: function dis(f) {
         if (typeof f !== "function")
             throw new TypeError(f + " is not a function");
@@ -294,6 +298,7 @@ Reference.prototype.toString = function () {
     return decompiler.pp(this.node);
 }
 
+// Just returns the value passed in, unless it's a reference (which it dereferences).
 function getValue(v) {
     if (v instanceof Reference) {
         if (!v.base) {
@@ -303,7 +308,15 @@ function getValue(v) {
             throw new ReferenceError(v.propertyName + " is not defined",
                                      v.node.filename, v.node.lineno);
         }
-        return v.base[v.propertyName];
+        // TODO(donnd): fix this hack!  Needed because my proxy doesn't work.
+        // return v.base[v.propertyName];
+        var r = v.base[v.propertyName];
+        if (r) return r;
+        if (v.base.hasOwnProperty && !v.base.hasOwnProperty(v.propertyName)) {
+          // TODO(donnd): recurse!?
+          return v.base.prototype[v.propertyName];
+        }
+        throw new ReferenceError('undefined: '+ v.propertyName);
     }
     return v;
 }
@@ -405,6 +418,7 @@ function executeModule(n, x) {
 function execute(n, x) {
     var a, c, f, i, j, r, s, t, u, v;
 
+    console.log("node: " + parser.tokenString(n.type))
     switch (n.type) {
       case MODULE:
         if (n.body)
@@ -940,11 +954,12 @@ function execute(n, x) {
         f = getValue(r);
         x.staticEnv = n.staticEnv;
         if (typeof f !== "function") {
-            throw new TypeError(r + " is not callable", c[0].filename, c[0].lineno);
+            throw new TypeError(r + " is not callable: " + typeof r, c[0].filename, c[0].lineno);
         }
         t = (r instanceof Reference) ? r.base : null;
         if (t instanceof Activation)
             t = null;
+        // calculate value by calling function f with this t and arguments a in execution context x.
         v = call(f, t, a, x);
         break;
 
@@ -1009,6 +1024,7 @@ function execute(n, x) {
         break;
 
       case IDENTIFIER:
+        console.log('id ', n.value);
         for (s = x.scope; s; s = s.parent) {
             if (n.value in s.object)
                 break;
@@ -1163,13 +1179,37 @@ function newFunction(n, x) {
         return fint.toString();
     }, false, false, true);
     var handler = definitions.makePassthruHandler(props);
+    console.log('newFunction!');
+    var proto2 = {};
     var p = Proxy.createFunction(handler,
-                                 function() { return fint.call(p, this, arguments, x); },
-                                 function() { return fint.construct(p, arguments, x); });
+                                 function() {
+                                   console.log('calling function fint p: ' + p);
+                                   return fint.call(p, this, arguments, x);
+                                 },
+                                 function() {
+                                   console.log('constructing function fint p: ' + p);
+                                   return fint.construct(p, arguments, x);
+                                 },
+                                 // TODO(donnd): remove, or debug usage in proxy.
+                                 proto2);
+    // TODO(donnd): reread this part -- I don't fully understand it!
     functionInternals.set(p, fint);
     var proto = {};
-    definitions.defineProperty(p, "prototype", proto, true);
-    definitions.defineProperty(proto, "constructor", p, false, false, true);
+    console.log('Setting definitions prototype and constructor!');
+
+    // TODO(donnd): Figure out how to make this work with my version of a Proxy!
+//    definitions.defineProperty(p, "prototype", proto, true);
+    // TODO(donnd): This section is patchwork!
+    p.prototype = proto;
+    p.toString = function() {
+      return fint.toString();
+    };
+    p.length = fint.length;
+    p.tag = 'UserFunctionProxy';
+    p.prototype.tag = 'UserFunctionProxy_proto';
+//    proto.constructor = p
+
+    definitions.defineProperty(proto2, "constructor", p, false, false, true);
     return p;
 }
 
@@ -1208,6 +1248,7 @@ function construct(f, a, x) {
 
 var FIp = FunctionInternals.prototype = {
     call: function(f, t, a, x) {
+        console.log('FunctionInternals.call!')
         var x2 = new ExecutionContext(FUNCTION_CODE, this.node.body.strict);
         x2.thisObject = t || global;
         x2.thisModule = null;
@@ -1226,6 +1267,7 @@ var FIp = FunctionInternals.prototype = {
     },
 
     construct: function(f, a, x) {
+        console.log('FunctionInternals.construct!')
         var p = this.prototype;
         var o = isObject(p) ? Object.create(p) : new Object;
 
@@ -1430,4 +1472,5 @@ exports.evaluate = evaluate;
 exports.getValueHook = null;
 exports.repl = repl;
 exports.test = test;
+exports.reflectClass = reflectClass;
 });

@@ -288,8 +288,8 @@ pzp.Browser.prototype.initRequireJs_ = function() {
         //never includes a ".js" extension since
         //the paths config could be for a directory.
         paths: {
-            lib: '../../../lib',
-            global: '../../../utils/global'
+            global: '../../../utils/global',
+            proxy: '../../../proxy'
         }
     });
   }
